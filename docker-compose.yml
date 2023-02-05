@@ -1,0 +1,54 @@
+version: '3.4'
+
+services:
+  natssample:
+    image: ${DOCKER_REGISTRY-}natssample
+    build:
+      context: .
+      dockerfile: NatsSample/Dockerfile
+    ports:
+      - 60834:60834
+      - 5254:5254
+      - 8888:80
+    environment:
+      TZ: Asia/Tokyo
+  natsb:
+    image: natsio/nats-box
+    container_name: natsb
+    command: tail -f /dev/null
+    environment:
+      TZ: Asia/Tokyo
+  nats1:
+    container_name: nats1
+    image: nats
+    command: -D -p 4222 --cluster nats://nats1:4248 --cluster_name test-cluster -m 9001
+    ports:
+      - 4222:4222
+      - 4248:4248
+      - 9001:9001
+    environment:
+      TZ: Asia/Tokyo
+  # nats2:
+  #   container_name: nats2
+  #   image: nats
+  #   command: -D -p 5222 -cluster nats://nats2:5248 -routes nats://nats1:4248 -m 9002 --cluster_name test-cluster
+  #   ports:
+  #     - 5222:5222
+  #     - 5248:5248
+  #     - 9002:9002
+  #   environment:
+  #     TZ: Asia/Tokyo
+  #   depends_on:
+  #     - nats1
+  # nats3:
+  #   container_name: nats3
+  #   image: nats
+  #   command: -D -p 6222 -cluster nats://nats3:6248 -routes nats://nats1:4248 -m 9003 --cluster_name test-cluster
+  #   ports:
+  #     - 6222:6222
+  #     - 6248:6248
+  #     - 9003:9003
+  #   environment:
+  #     TZ: Asia/Tokyo
+  #   depends_on:
+  #     - nats1
